@@ -1,11 +1,11 @@
 package tz.go.necta.widgettest
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +27,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -60,7 +59,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize().padding(32.dp)
                         .background(Color.Blue)
                 ) {
-                    TFSDropDownMenu()
+                    TFSDropDownMenu(label = "Select Gender", mutableListOf("Male", "Female"))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TFSDropDownMenu(label = "Select Category", mutableListOf("Client", "Technician"))
                 }
 
             }
@@ -126,11 +127,11 @@ private fun TextFieldForSpinner(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TFSDropDownMenu() {
+fun TFSDropDownMenu(label:String, list: List<String>) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxWidth().background(Color.Blue)) {
-        var stateList by remember { mutableStateOf(mutableListOf("Juma", "Hadija")) }
-        var selectedOption = remember { mutableStateOf("") }
+        val stateList by remember { mutableStateOf(list) }
+        val selectedOption = remember { mutableStateOf("") }
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             TextFieldForSpinner(
                 leadingIcon = {
@@ -148,30 +149,34 @@ fun TFSDropDownMenu() {
                     )
                     .height(48.dp),
                 fontSize = 16.sp,
-                placeholderText = "Select Gender",
+                placeholderText = label,
                 selectedOption = selectedOption
             )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                },
-            ) {
-                stateList.forEach { selectedText ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selectedOption.value = selectedText
-                            expanded = false
-                        },
-                        text = {
-                            Text(text = selectedText)
-                        },
-                        modifier = Modifier.fillMaxSize(0.8f)
-                    )
+            
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    },
+                ) {
+                    stateList.forEach { selectedText ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedOption.value = selectedText
+                                expanded = false
+                            },
+                            text = {
+                                Text(text = selectedText)
+                            },
+                        )
+                    }
                 }
-            }
         }
-        Spacer(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable {
+        val interactionSource = MutableInteractionSource()
+        Spacer(modifier = Modifier.matchParentSize().background(Color.Transparent).clickable(
+            interactionSource = interactionSource,
+            indication = null
+        ) {
             expanded = !expanded
         })
     }
